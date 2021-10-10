@@ -4,7 +4,7 @@ from rest_framework import filters, mixins, viewsets
 from rest_framework.permissions import SAFE_METHODS
 
 from reviews.models import Category, Title, Genre
-from permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly
 from .serializers import (
     CategorySerializer,
     GenreSerializer,
