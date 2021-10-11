@@ -25,26 +25,26 @@ class ListCreateDestroyAPIView(
 class CategoryViewSet(ListCreateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    lookup_field = "slug"
+    lookup_field = 'slug'
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
+    search_fields = ('name',)
 
 
 class GenreViewSet(ListCreateDestroyAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    lookup_field = "slug"
+    lookup_field = 'slug'
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ("name",)
+    search_fields = ('name',)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    search_fields = ("id",)
+    search_fields = ('id',)
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -53,5 +53,5 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Title.objects.all().annotate(
-            rating=Avg("reviews__score")
+            rating=Avg('reviews__score')
         )

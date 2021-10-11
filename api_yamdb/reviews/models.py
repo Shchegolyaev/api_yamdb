@@ -9,7 +9,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']
 
 
 class Genre(models.Model):
@@ -20,7 +20,7 @@ class Genre(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']
 
 
 class Title(models.Model):
@@ -31,9 +31,9 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        related_name="categories",
+        related_name='categories',
     )
     genre = models.ManyToManyField(Genre, blank=True)
 
     class Meta:
-        ordering = ["year"]
+        ordering = ['year']
