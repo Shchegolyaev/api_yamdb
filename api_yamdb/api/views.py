@@ -28,7 +28,7 @@ from rest_framework.permissions import SAFE_METHODS
 
 from reviews.models import Category, Title, Genre
 from .filters import TitleFilter
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAdmin
 from .serializers import (
     CategorySerializer,
     GenreSerializer,
@@ -83,7 +83,7 @@ class SignUp(APIView):
 @permission_classes([AllowAny, ])
 def get_token(request):
 
-    if User.objects.filter(username=request.data['username']).exists():
+    if User.objects.filter(username=request.user.username).exists():
         user = get_object_or_404(User, username=request.data['username'])
         if default_token_generator.check_token(user, request.data['confirmation_code']):
             token = AccessToken.for_user(user)
@@ -92,10 +92,12 @@ def get_token(request):
     return Response('Пользователь не найден', status=status.HTTP_404_NOT_FOUND)
 
 
+
+
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdmin,)
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)

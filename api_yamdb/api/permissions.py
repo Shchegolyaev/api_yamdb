@@ -4,6 +4,13 @@ METHOD_FOR_AUTHORS = ['PUT', 'PATCH', 'DELETE']
 ROLE = ['admin', 'moderator']
 
 
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated and request.user.role == 'admin'
+        )
+
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         return (
