@@ -82,14 +82,13 @@ class SignUp(APIView):
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def get_token(request):
-
-    if User.objects.filter(username=request.user.username).exists():
-        user = get_object_or_404(User, username=request.data['username'])
-        if default_token_generator.check_token(user, request.data['confirmation_code']):
-            token = AccessToken.for_user(user)
-            return Response({'token': str(token)}, status=status.HTTP_200_OK)
-        return Response('Отсутствует обязательное поле или оно некорректно', status=status.HTTP_400_BAD_REQUEST)
-    return Response('Пользователь не найден', status=status.HTTP_404_NOT_FOUND)
+    serializer = TokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = get_object_or_404(User, username=serializer.data['username'])
+    if default_token_generator.check_token(user, request.data['confirmation_code']):
+        token = AccessToken.for_user(user)
+        return Response({'token': str(token)}, status=status.HTTP_200_OK)
+    return Response('Отсутствует обязательное поле или оно некорректно', status=status.HTTP_400_BAD_REQUEST)
 
 
 
