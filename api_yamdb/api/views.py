@@ -149,7 +149,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
-    search_fields = ('id',)
     pagination_class = ReviewPagination
 
     def get_serializer_class(self):
