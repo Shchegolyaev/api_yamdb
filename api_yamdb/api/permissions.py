@@ -21,7 +21,7 @@ class ReviewCommentsPermission(permissions.BasePermission):
         )
 
     def has_object_permission(self, request, view, obj):
-        if request.user.role in ROLE:
+        if request.user.is_authenticated and request.user.role in ROLE:
             return True
         if request.method in METHOD_FOR_AUTHORS and request.user != obj.author:
             return False
