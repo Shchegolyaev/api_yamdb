@@ -17,12 +17,50 @@ class User(AbstractUser):
         verbose_name='Биография',
         blank=True
     )
-    role = models.CharField(max_length=300, choices=ROLES, default=ROLES[0][0])
+    role = models.CharField(max_length=300, choices=ROLES, default='user')
 
 
 class Token(models.Model):
     username = models.CharField(max_length=150)
     confirmation_code = models.CharField(max_length=254)
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
+
+class Genre(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
+
+class Title(models.Model):
+    name = models.CharField(max_length=200)
+    year = models.IntegerField(null=True, blank=True)
+    description = models.TextField(max_length=2000, null=True, blank=True)
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='categories',
+    )
+    genre = models.ManyToManyField(Genre, blank=True)
+
+    class Meta:
+        ordering = ['year']
 
 
 class Review(models.Model):
@@ -73,42 +111,3 @@ class Comments(models.Model):
 #     if value < 1 or value > 10:
 #         raise ValidationError('%s some error message' % value)
 #     return True
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=200, unique=True)
-    slug = models.SlugField(max_length=30, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['name']
-
-
-class Genre(models.Model):
-    name = models.CharField(max_length=200, unique=True)
-    slug = models.SlugField(max_length=30, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['name']
-
-
-class Title(models.Model):
-    name = models.CharField(max_length=200)
-    year = models.IntegerField(null=True, blank=True)
-    description = models.TextField(max_length=2000, null=True, blank=True)
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='categories',
-    )
-    genre = models.ManyToManyField(Genre, blank=True)
-
-    class Meta:
-        ordering = ['year']
-
