@@ -1,7 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-#from django.core.exceptions import ValidationError
-
+from django.db import models
 
 ROLES = (
     ('user', 'Аутентифицированный пользователь'),
@@ -106,8 +104,3 @@ class Comments(models.Model):
 
     def __str__(self):
         return self.text
-#валидатор - может пригодиться
-# def validate_number(value):
-#     if value < 1 or value > 10:
-#         raise ValidationError('%s some error message' % value)
-#     return True
