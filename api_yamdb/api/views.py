@@ -93,7 +93,6 @@ def get_token(request):
 
 
 
-
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -120,7 +119,7 @@ def get_update_me(request):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     me = get_object_or_404(User, username=request.user.username)
-    serializer = UserSerializer(me)
+    serializer = MeSerializer(me)
     return Response(serializer.data)
 
 

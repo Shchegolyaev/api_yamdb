@@ -20,6 +20,7 @@ class SingUpSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
@@ -57,6 +58,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class MeSerializer(serializers.ModelSerializer):
+    role = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
