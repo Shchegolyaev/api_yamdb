@@ -28,10 +28,10 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.get_or_create(**validated_data)[0]
 
-    def validate(self, data):
-        if data['username'] == 'me':
+    def validate_username(self, value):
+        if value == 'me':
             raise serializers.ValidationError("me - недопустимый username")
-        return data
+        return value
 
 
 class TokenSerializer(serializers.ModelSerializer):
