@@ -51,6 +51,7 @@ class Review(models.Model):
     def __str__(self):
         return self.text
 
+
 class Comments(models.Model):
     review_id = models.ForeignKey(
         Review,

@@ -1,5 +1,4 @@
 from rest_framework import serializers
-<<<<<<< HEAD
 from rest_framework.relations import SlugRelatedField, PrimaryKeyRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
