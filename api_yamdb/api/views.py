@@ -149,6 +149,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+
     pagination_class = ReviewPagination
 
     def get_serializer_class(self):
@@ -184,9 +185,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
             )
         serializer.save(
             author=self.request.user,
-            title_id=title
+            title=title
         )
-
+        
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentsSerializers
