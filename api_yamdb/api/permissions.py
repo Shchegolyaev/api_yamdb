@@ -20,3 +20,12 @@ class ReviewCommentsPermission(permissions.BasePermission):
         if request.method in METHOD_FOR_AUTHORS and request.user != obj.author:
             return False
         return True
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.method in permissions.SAFE_METHODS or
+            request.user.is_authenticated and request.user.role == 'admin'
+        )
+
