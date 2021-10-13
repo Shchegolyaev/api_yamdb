@@ -30,18 +30,16 @@ class SignUp(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-
-        if not User.objects.filter(username=request.user.username).exists():
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            user = serializer.instance
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        if not User.objects.filter(username=serializer.validated_data['username']).exists():
+            user = serializer.validated_data
             sent_verification_code(user)
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        elif User.objects.filter(username=request.user.username).exists():
-            user = get_object_or_404(User, username=request.data["username"])
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        elif User.objects.filter(username=serializer.validated_data['username']).exists():
+            user = get_object_or_404(User, username=serializer.validated_data['username'])
             sent_verification_code(user)
-            return Response(request.data, status=status.HTTP_200_OK)
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -69,6 +67,7 @@ def get_token(request):
         status=status.HTTP_404_NOT_FOUND,
     )
 
+
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -77,12 +76,6 @@ class UsersViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
     lookup_field = "username"
-
-
-class UpdateListViewSet(
-    mixins.UpdateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
-):
-    pass
 
 
 @api_view(["GET", "PATCH"])
