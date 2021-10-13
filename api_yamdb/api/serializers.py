@@ -1,5 +1,4 @@
 from django.contrib.auth.tokens import default_token_generator
-
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -44,17 +43,17 @@ class TokenSerializer(serializers.ModelSerializer):
         model = Token
         fields = "__all__"
 
-        def validate_username(self, value):
-            if not User.objects.filter(username=value).exists():
-                raise serializers.ValidationError("Пользователь не найден")
-            return value
+    def validate_username(self, value):
+        if not User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Пользователь не найден")
+        return value
 
-        def validate(self, data):
-            if not default_token_generator.check_token(
-                data["username"], data["confirmation_code"]
-            ):
-                raise serializers.ValidationError("Код подтверждения не верен")
-            return data
+    def validate(self, data):
+        if not default_token_generator.check_token(
+            data["username"], data["confirmation_code"]
+        ):
+            raise serializers.ValidationError("Код подтверждения не верен")
+        return data
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -117,13 +116,13 @@ class CommentsSerializers(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("name", "slug")
+        exclude = ('id',)
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ("name", "slug")
+        exclude = ('id',)
 
 
 class TitleSerializerGet(serializers.ModelSerializer):

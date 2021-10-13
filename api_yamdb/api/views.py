@@ -1,8 +1,7 @@
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
@@ -13,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
+from .utils import sent_verification_code
+from .mixins import ListCreateDestroyAPIView
 from .filters import TitleFilter
 from .pagination import CommentsPagination, ReviewPagination
 from .permissions import IsAdmin, IsAdminOrReadOnly, ReviewCommentsPermission
@@ -23,27 +24,6 @@ from .serializers import (CategorySerializer, CommentsSerializers,
 from reviews.models import Category, Genre, Review, Title, User
 
 
-class ListCreateDestroyAPIView(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
-    pass
-
-
-def sent_verification_code(user):
-    confirmation_code = default_token_generator.make_token(user)
-    send_mail(
-        "Код подтверждения",
-        f"Ваш код: {confirmation_code}",
-        "db_yamdb@example.com",
-        [user.email],
-        fail_silently=False,
-    )
-
-
-# Доступно всем
 class SignUp(APIView):
     permission_classes = [AllowAny]
     serializer_class = SingUpSerializer
@@ -73,18 +53,21 @@ class SignUp(APIView):
 )
 def get_token(request):
     serializer = TokenSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(User, username=serializer.data["username"])
-    if default_token_generator.check_token(
-        user, request.data["confirmation_code"]
-    ):
-        token = AccessToken.for_user(user)
-        return Response({"token": str(token)}, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        user = get_object_or_404(User, username=serializer.validated_data["username"])
+        if default_token_generator.check_token(
+            user, request.data["confirmation_code"]
+        ):
+            token = AccessToken.for_user(user)
+            return Response({"token": str(token)}, status=status.HTTP_200_OK)
+        return Response(
+            "Отсутствует обязательное поле или оно некорректно",
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     return Response(
-        "Отсутствует обязательное поле или оно некорректно",
-        status=status.HTTP_400_BAD_REQUEST,
+        serializer.errors,
+        status=status.HTTP_404_NOT_FOUND,
     )
-
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -102,7 +85,6 @@ class UpdateListViewSet(
     pass
 
 
-# Доступно любому авторизированному user
 @api_view(["GET", "PATCH"])
 def get_update_me(request):
     if request.method == "PATCH":
