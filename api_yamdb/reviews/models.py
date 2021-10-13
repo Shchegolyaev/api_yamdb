@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
+
 
 ROLES = (
     ('user', 'Аутентифицированный пользователь'),
@@ -7,6 +9,9 @@ ROLES = (
     ('admin', 'Администратор'),
 )
 
+def validate_score(value):
+    if value < 1 or value > 10:
+        raise ValidationError('Оценка не может быть более 10 или менее 1')
 
 class User(AbstractUser):
     email = models.EmailField(max_length=254, unique=True, blank=False)
@@ -73,7 +78,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
-    score = models.IntegerField()
+    score = models.IntegerField(validators=[validate_score])
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
