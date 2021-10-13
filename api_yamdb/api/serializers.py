@@ -38,22 +38,9 @@ class UserSerializer(serializers.ModelSerializer):
         return value
 
 
-class TokenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Token
-        fields = "__all__"
-
-    def validate_username(self, value):
-        if not User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("Пользователь не найден")
-        return value
-
-    def validate(self, data):
-        if not default_token_generator.check_token(
-            data["username"], data["confirmation_code"]
-        ):
-            raise serializers.ValidationError("Код подтверждения не верен")
-        return data
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100)
+    confirmation_code = serializers.CharField(max_length=500)
 
 
 class UserListSerializer(serializers.ModelSerializer):
