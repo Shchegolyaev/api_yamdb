@@ -96,9 +96,10 @@ class ReviewSerializers(serializers.ModelSerializer):
         model = Review
 
     def validate(self, data):
-        if 1 <= data["score"] <= 10:
-            return data
-        raise serializers.ValidationError("Рейтинг должен быть от 1 до 10.")
+        if 1 >= data["score"] >= 10:
+            raise serializers.ValidationError("Рейтинг должен быть от 1 до 10.")
+        return data
+
 
 
 class CommentsSerializers(serializers.ModelSerializer):

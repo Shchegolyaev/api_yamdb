@@ -54,7 +54,7 @@ def get_token(request):
     if serializer.is_valid():
         user = get_object_or_404(User, username=serializer.validated_data["username"])
         if default_token_generator.check_token(
-            user, request.data["confirmation_code"]
+            user, serializer.validated_data["confirmation_code"]
         ):
             token = AccessToken.for_user(user)
             return Response({"token": str(token)}, status=status.HTTP_200_OK)
@@ -116,7 +116,7 @@ class GenreViewSet(ListCreateDestroyAPIView):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg("reviews__score"))
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
@@ -127,9 +127,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in SAFE_METHODS:
             return TitleSerializerGet
         return TitleSerializerPost
-
-    def get_queryset(self):
-        return Title.objects.all().annotate(rating=Avg("reviews__score"))
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
