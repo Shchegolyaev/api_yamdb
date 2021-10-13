@@ -1,26 +1,25 @@
 from django.contrib.auth.tokens import default_token_generator
-
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import SAFE_METHODS, AllowAny
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .utils import sent_verification_code
-from .mixins import ListCreateDestroyAPIView
 from .filters import TitleFilter
+from .mixins import ListCreateDestroyAPIView
 from .pagination import CommentsPagination, ReviewPagination
 from .permissions import IsAdmin, IsAdminOrReadOnly, ReviewCommentsPermission
 from .serializers import (CategorySerializer, CommentsSerializers,
                           GenreSerializer, MeSerializer, ReviewSerializers,
                           SingUpSerializer, TitleSerializerGet,
                           TitleSerializerPost, TokenSerializer, UserSerializer)
+from .utils import sent_verification_code
 from reviews.models import Category, Genre, Review, Title, User
 
 
@@ -32,27 +31,41 @@ class SignUp(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        if not User.objects.filter(username=serializer.validated_data['username']).exists():
+        if not User.objects.filter(
+            username=serializer.validated_data["username"]
+        ).exists():
             user = serializer.validated_data
             sent_verification_code(user)
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
-        elif User.objects.filter(username=serializer.validated_data['username']).exists():
-            user = get_object_or_404(User, username=serializer.validated_data['username'])
+            return Response(
+                serializer.validated_data, status=status.HTTP_200_OK
+            )
+        elif User.objects.filter(
+            username=serializer.validated_data["username"]
+        ).exists():
+            user = get_object_or_404(
+                User, username=serializer.validated_data["username"]
+            )
             sent_verification_code(user)
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+            return Response(
+                serializer.validated_data, status=status.HTTP_200_OK
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny,])
+@permission_classes(
+    [
+        AllowAny,
+    ]
+)
 def get_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(User, username=serializer.data['username'])
-    confirmation_code = serializer.data['confirmation_code']
+    user = get_object_or_404(User, username=serializer.data["username"])
+    confirmation_code = serializer.data["confirmation_code"]
     if default_token_generator.check_token(user, confirmation_code):
         token = AccessToken.for_user(request.user)
-        return Response(f'token: {token}', status=status.HTTP_200_OK)
+        return Response(f"token: {token}", status=status.HTTP_200_OK)
     return Response(
         "Отсутствует обязательное поле или оно некорректно",
         status=status.HTTP_400_BAD_REQUEST,
@@ -68,19 +81,21 @@ class UsersViewSet(viewsets.ModelViewSet):
     search_fields = ("username",)
     lookup_field = "username"
 
-
-@api_view(["GET", "PATCH"])
-def get_update_me(request):
-    if request.method == "PATCH":
-        me = get_object_or_404(User, username=request.user.username)
-        serializer = MeSerializer(me, data=request.data, partial=True)
-        if serializer.is_valid():
+    @action(
+        detail=False,
+        methods=["get", "patch"],
+        permission_classes=[IsAuthenticated],
+    )
+    def me(self, request):
+        if request.method == "PATCH":
+            serializer = MeSerializer(
+                request.user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    me = get_object_or_404(User, username=request.user.username)
-    serializer = MeSerializer(me)
-    return Response(serializer.data)
+        serializer = MeSerializer(request.user)
+        return Response(serializer.data)
 
 
 class CategoryViewSet(ListCreateDestroyAPIView):

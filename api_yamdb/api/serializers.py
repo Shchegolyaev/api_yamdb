@@ -1,9 +1,7 @@
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import (Category, Comment, Genre, Review, Title, Token,
-                            User)
+from reviews.models import Category, Comment, Genre, Review, Title, Token, User
 
 
 class SingUpSerializer(serializers.ModelSerializer):
@@ -84,9 +82,10 @@ class ReviewSerializers(serializers.ModelSerializer):
 
     def validate(self, data):
         if 1 >= data["score"] >= 10:
-            raise serializers.ValidationError("Рейтинг должен быть от 1 до 10.")
+            raise serializers.ValidationError(
+                "Рейтинг должен быть от 1 до 10."
+            )
         return data
-
 
 
 class CommentsSerializers(serializers.ModelSerializer):
@@ -104,13 +103,13 @@ class CommentsSerializers(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        exclude = ('id',)
+        exclude = ("id",)
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        exclude = ('id',)
+        exclude = ("id",)
 
 
 class TitleSerializerGet(serializers.ModelSerializer):

@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
@@ -8,6 +9,7 @@ from django.db import models
 def validate_score(value):
     if value < 1 or value > 10:
         raise ValidationError('Оценка не может быть более 10 или менее 1')
+
 
 def validate_year(value):
     if value > datetime.now().year:
@@ -126,7 +128,6 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        #related_name='categories',belongs
         related_name='belongs',
         verbose_name='категория'
     )

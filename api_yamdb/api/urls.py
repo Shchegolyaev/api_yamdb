@@ -4,11 +4,12 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (CategoryViewSet, CommentsViewSet, GenreViewSet,
                     ReviewViewSet, SignUp, TitleViewSet, UsersViewSet,
-                    get_token, get_update_me)
+                    get_token)
 
 router = DefaultRouter()
 router = routers.DefaultRouter()
 router.register(r"users", UsersViewSet)
+router.register(r"v1/users/me/", UsersViewSet)
 router.register(r"users/<str:username>/", UsersViewSet)
 router.register(r"categories", CategoryViewSet)
 router.register(r"genres", GenreViewSet)
@@ -25,6 +26,5 @@ router.register(
 urlpatterns = [
     path("v1/auth/signup/", SignUp.as_view()),
     path('v1/auth/token/', get_token, name='gettoken'),
-    path("v1/users/me/", get_update_me),
     path("v1/", include(router.urls)),
 ]
