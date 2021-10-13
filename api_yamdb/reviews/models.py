@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -14,13 +15,10 @@ def validate_year(value):
 
 
 class User(AbstractUser):
-    USER = 'user'
-    MODERATOR = 'moderator'
-    ADMIN = 'admin'
     ROLES = [
-        (USER, 'Аутентифицированный пользователь'),
-        (MODERATOR, 'Модератор'),
-        (ADMIN, 'Администратор'),
+        (settings.ROLE_USER, 'Аутентифицированный пользователь'),
+        (settings.ROLE_MODERATOR, 'Модератор'),
+        (settings.ROLE_ADMIN, 'Администратор'),
         ]
     email = models.EmailField(
         max_length=254,
@@ -128,7 +126,8 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='categories',
+        #related_name='categories',belongs
+        related_name='belongs',
         verbose_name='категория'
     )
     genre = models.ManyToManyField(

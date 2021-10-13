@@ -128,3 +128,7 @@ SIMPLE_JWT = {
 }
 
 APPEND_SLASH = False
+
+ROLE_USER = 'user'
+ROLE_MODERATOR = 'moderator'
+ROLE_ADMIN = 'admin'
