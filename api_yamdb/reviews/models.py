@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -12,6 +13,11 @@ ROLES = (
 def validate_score(value):
     if value < 1 or value > 10:
         raise ValidationError('Оценка не может быть более 10 или менее 1')
+
+def validate_year(value):
+    if value > datetime.now().year:
+        raise ValidationError('Год не может быть больше текущего')
+
 
 class User(AbstractUser):
     email = models.EmailField(max_length=254, unique=True, blank=False)
@@ -51,8 +57,8 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=200)
-    year = models.IntegerField(null=True, blank=True)
+    name = models.CharField(max_length=200, db_index=True)
+    year = models.IntegerField(null=True, blank=True, validators=[validate_year])
     description = models.TextField(max_length=2000, null=True, blank=True)
     category = models.ForeignKey(
         Category,
