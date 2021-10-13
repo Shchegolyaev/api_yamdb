@@ -88,7 +88,7 @@ class Review(models.Model):
         return self.text
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     review_id = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -101,6 +101,9 @@ class Comments(models.Model):
         related_name='comments'
     )
     pub_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['pub_date']
 
     def __str__(self):
         return self.text

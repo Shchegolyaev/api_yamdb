@@ -3,7 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import (Category, Comments, Genre, Review, Title, Token,
+from reviews.models import (Category, Comment, Genre, Review, Title, Token,
                             User)
 
 
@@ -111,7 +111,7 @@ class CommentsSerializers(serializers.ModelSerializer):
 
     class Meta:
         fields = ("id", "text", "author", "pub_date")
-        model = Comments
+        model = Comment
 
 
 class CategorySerializer(serializers.ModelSerializer):
