@@ -14,10 +14,18 @@ from .filters import TitleFilter
 from .mixins import ListCreateDestroyAPIView
 from .pagination import CommentsPagination, ReviewPagination
 from .permissions import IsAdmin, IsAdminOrReadOnly, ReviewCommentsPermission
-from .serializers import (CategorySerializer, CommentsSerializers,
-                          GenreSerializer, MeSerializer, ReviewSerializers,
-                          SingUpSerializer, TitleSerializerGet,
-                          TitleSerializerPost, TokenSerializer, UserSerializer)
+from .serializers import (
+    CategorySerializer,
+    CommentsSerializers,
+    GenreSerializer,
+    MeSerializer,
+    ReviewSerializers,
+    SingUpSerializer,
+    TitleSerializerGet,
+    TitleSerializerPost,
+    TokenSerializer,
+    UserSerializer,
+)
 from .utils import sent_verification_code
 from reviews.models import Category, Genre, Review, Title, User
 
@@ -38,9 +46,7 @@ class SignUp(APIView):
             return Response(
                 serializer.validated_data, status=status.HTTP_200_OK
             )
-        elif User.objects.filter(
-            username=serializer.validated_data["username"]
-        ).exists():
+        else:
             user = get_object_or_404(
                 User, username=serializer.validated_data["username"]
             )
@@ -48,19 +54,16 @@ class SignUp(APIView):
             return Response(
                 serializer.validated_data, status=status.HTTP_200_OK
             )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
-@permission_classes(
-    [
-        AllowAny,
-    ]
-)
+@permission_classes([AllowAny, ])
 def get_token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    user = get_object_or_404(User, username=serializer.data["username"])
+    user = get_object_or_404(
+        User, username=serializer.validated_data["username"]
+    )
     confirmation_code = serializer.data["confirmation_code"]
     if default_token_generator.check_token(user, confirmation_code):
         token = AccessToken.for_user(request.user)
