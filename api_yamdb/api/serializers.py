@@ -91,10 +91,10 @@ class ReviewSerializers(serializers.ModelSerializer):
         if title.reviews.filter(author=author).exists():
             raise ValidationError(
                 detail="Пользователь уже оставил отзыв " "на это произведение."
-           )
+            )
         return data
 
-    #def validate_score(self, data):
+    # def validate_score(self, data):
     #    if 1 >= data["score"] >= 10:
     #        raise serializers.ValidationError(
     #            "Рейтинг должен быть от 1 до 10."
