@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
 
 from reviews.models import Category, Comment, Genre, Review, Title, Token, User
 
@@ -81,11 +83,23 @@ class ReviewSerializers(serializers.ModelSerializer):
         model = Review
 
     def validate(self, data):
-        if 1 >= data["score"] >= 10:
-            raise serializers.ValidationError(
-                "Рейтинг должен быть от 1 до 10."
-            )
+        title_id = self.context.get('view').kwargs.get('title_id')
+        author = self.context['request'].user
+        title = get_object_or_404(Title, id=title_id)
+        if self.context['request'].method == 'PATCH':
+            return data
+        if title.reviews.filter(author=author).exists():
+            raise ValidationError(
+                detail="Пользователь уже оставил отзыв " "на это произведение."
+           )
         return data
+
+    #def validate_score(self, data):
+    #    if 1 >= data["score"] >= 10:
+    #        raise serializers.ValidationError(
+    #            "Рейтинг должен быть от 1 до 10."
+    #        )
+    #    return data
 
 
 class CommentsSerializers(serializers.ModelSerializer):
