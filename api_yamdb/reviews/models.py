@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
-from .validators import validate_score, validate_year
+from .validators import validate_year
 
 
 class User(AbstractUser):
@@ -104,7 +105,7 @@ class Title(models.Model):
     year = models.IntegerField(
         null=True,
         blank=True,
-        validators=[validate_year],
+        validators=[MinValueValidator(1), validate_year],
         verbose_name='год'
     )
     description = models.TextField(
@@ -117,7 +118,7 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='belongs',
+        related_name='titles',
         verbose_name='категория'
     )
     genre = models.ManyToManyField(
@@ -147,7 +148,7 @@ class Review(models.Model):
         verbose_name='автор'
     )
     score = models.IntegerField(
-        validators=[validate_score],
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name='оценка'
     )
     pub_date = models.DateTimeField(
