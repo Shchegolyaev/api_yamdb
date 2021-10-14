@@ -21,7 +21,7 @@ class User(AbstractUser):
         (settings.ROLE_USER, 'Аутентифицированный пользователь'),
         (settings.ROLE_MODERATOR, 'Модератор'),
         (settings.ROLE_ADMIN, 'Администратор'),
-        ]
+    ]
     email = models.EmailField(
         max_length=254,
         unique=True,
